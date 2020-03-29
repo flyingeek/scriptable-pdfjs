@@ -52,8 +52,8 @@ export function getOFPText(base64string) {
 }
 
 // noinspection JSUnusedGlobalSymbols
-export function gePDFText(base64string) {
-  return extractPDFText(
+export function getPDFText(base64string) {
+  extractPDFText(
     {data: atob(base64string)}).then((text) => {
       completion(text)
   }, (error) => {
