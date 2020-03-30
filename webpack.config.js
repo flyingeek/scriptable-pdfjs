@@ -1,5 +1,6 @@
 require('webpack');
 const path = require('path');
+const infos = require("./package.json");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 
@@ -7,8 +8,8 @@ const config = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'ofp2text.js',
-    library: "ofp2text",
+    filename: `${infos.name}.js`,
+    library: "pdfjs",
     libraryTarget: "var"
   },
   module: {
@@ -27,9 +28,9 @@ const config = {
       template: path.join(__dirname, './src/index.html'),
       inject: "body",
       inlineSource: '.(js|css)$',
-      filename: "ofp2text4scriptable.html"
+      filename: `${infos.name}.html`,
     }),
-    new HtmlWebpackInlineSourcePlugin(),
+    new HtmlWebpackInlineSourcePlugin(HtmlWebpackPlugin),
   ]
 };
 

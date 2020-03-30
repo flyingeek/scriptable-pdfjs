@@ -1,42 +1,46 @@
 {
-  "name": "ofp2text4scriptable",
+  "name": "scriptable-pdfjs",
   "version": "1.0.0",
-  "description": "convert in scriptable app an ofp in pdf format to text. ",
+  "description": "converts a pdf to text in ios app scriptable app.",
   "main": "index.js",
   "scripts": {
+    "preinstall": "npx npm-force-resolutions",
     "clean": "rm dist/**",
-    "build": "webpack --mode production && rm dist/ofp2text.js",
+    "build": "webpack --mode production && rm dist/*.js",
     "lint": "eslint src/**"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/flyingeek/ofp2text4scriptable.git"
+    "url": "git+https://github.com/flyingeek/scriptable-pdfjs.git"
   },
   "author": "Eric Delord",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/flyingeek/ofp2text4scriptable/issues"
+    "url": "https://github.com/flyingeek/scriptable-pdfjs/issues"
   },
-  "homepage": "https://github.com/flyingeek/ofp2text4scriptable#readme",
+  "homepage": "https://github.com/flyingeek/scriptable-pdfjs#readme",
   "eslintConfig": {
     "parserOptions": {
       "ecmaVersion": 2018,
       "sourceType": "module"
     },
     "env": {
-      "node":  true,
+      "node": true,
       "commonjs": true
     },
     "extends": [
       "eslint:recommended"
     ]
   },
+  "resolutions": {
+    "minimist": "^1.2.5"
+  },
   "devDependencies": {
     "css-loader": "^3.4.2",
     "eslint": "^6.8.0",
     "file-loader": "^4.3.0",
-    "html-webpack-inline-source-plugin": "0.0.10",
-    "html-webpack-plugin": "^3.2.0",
+    "html-webpack-inline-source-plugin": "^1.0.0-beta.2",
+    "html-webpack-plugin": "^4.0.3",
     "style-loader": "^0.23.1",
     "url-loader": "^4.0.0",
     "webpack": "^4.42.1",

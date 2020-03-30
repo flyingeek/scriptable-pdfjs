@@ -1,11 +1,12 @@
 
-# ofp2text4scriptable
+# scriptable-pdfjs
 
-A PDF text parser for Scriptable App (ios).
+A PDF text parser for [Scriptable App](https://scriptable.app) (iOS).
 
-This parser was made to parse some specific PDF files (OFP) but it can be used
-on any PDF if you find that the PDFKit conversion offered by Shortcuts is
-causing your text to be mixed up.
+iOS shortcuts PDF conversion is not always the good tool.
+Due to the "intelligent" column recognition of PDFKit, text output
+is sometime in total disorder. I needed a parser which always output text in a 
+predictable order, and this tool does that using the pdfjs text extraction.
 
 ## Building
 
@@ -15,44 +16,82 @@ First install dependencies:
 npm install
 ```
 
-To create a production build:
+To create a build:
 
 ```sh
 npm run build
 ```
 
-## Publishing
+## Running from Scriptable
 
-Copy dist/ofp2text4scriptable.html into Scriptable Document Folder.
+Copy `dist/scriptable-pdfjs.html` into Scriptable Document Folder.
+
+```javascript
+const fm = FileManager.iCloud();
+const wv = new WebView();
+const htmlFileUrl = fm.joinPath(fm.documentsDirectory(), "scriptable-pdfjs.html");
+await wv.loadFile(htmlFileUrl);
+
+/*
+ In the WebView your javascript will have access to the pdfjs global var.
+ pdfjs.pdfjsLib is the pdfjs module
+ pdfjs.getPDFText is a convenience wrapper
+ You have to pass the pdf file as a base64 string
+*/
+
+let javascript = 'pdfjs.getPDFText(';
+javascript += '"' + fm.read(pdfFilePath).toBase64String() + '"';
+javascript += ');'
+
+let result = "";
+try {
+  result = await wv.evaluateJavaScript(javascript, true);
+} catch (e) {
+  //...
+}
+//...
+```
 
 ## Running from Shortcuts app
 
+In this example we also expect to find scriptable-pdfjs.html` in Scriptable
+documents folder
+
 - Pass a PDF using the sharesheet or an Open File action
-- Add a Scriptable/Create bookmark action named ShortcutOFP for this file
+- Save a copy of that file in the Shortcut Folder to allow the next bookmark creation action
+- Add a Scriptable/Create bookmark action
 - Add a Scriptable/Run Inline action containing :
 
-```
-const fm = FileManager.iCloud();
-// scriptable needs the Create File Bookmark action to access the file
-// use the same bookmark name below
-const filePath = fm.bookmarkedPath("ShortcutOFP");
-await fm. downloadFileFromiCloud(filePath);
+```javascript
+let fm;
+try {
+  fm = FileManager.iCloud();
+} catch(e) {
+  fm = FileManager.local();
+}
+// use the same bookmark name as in the action above
+const filePath = fm.bookmarkedPath("ShortcutPDF");
+await fm. downloadFileFromiCloud(filePath); // works also for local file
 
-// We are executing the pdfjs text conversion in a WebView
+// We execute pdfjs in a WebView
 const wv = new WebView();
-const htmlFileUrl = fm.joinPath(fm.documentsDirectory(), "ofp2text4scriptable.html");
+const htmlFileUrl = fm.joinPath(fm.documentsDirectory(), "scriptable-pdfjs.html");
 await wv.loadFile(htmlFileUrl);
 
-const javascript = 'ofp2text.getOFPText("' + fm.read(filePath).toBase64String() + '");';
+let javascript = 'pdfjs.getPDFText(';
+javascript += '"' + fm.read(filePath).toBase64String() + '"';
+javascript += ', (pageText) => pageText.includes("(Long copy #1)")';
+javascript += ', true';
+javascript += ');'
 
-// result is empty if an error occured
-result = await wv.evaluateJavaScript(javascript, true);
+
+try {
+  result = await wv.evaluateJavaScript(javascript, true);
+} catch (e) {
+  result = "";
+}
 Script.setShortcutOutput(result);
 ```
-
-to dump a generic PDF to text, simply call ofp2text.getPDFtext()
-instead of ofp2text.getOFPtext()
-
-For some reasons... (bug in shortcuts ?) You cannot convert the PDF to Base64
-within the shortcuts app and pass it to Scriptable. You have to use the bookmark
-trick and make the conversion in Scriptable.
+For some reasons... (bug in shortcuts or scriptable ?) You cannot convert
+the PDF to Base64 and pass it as an argument to the script. You have to use
+the bookmark trick and make the base64 conversion in Scriptable.

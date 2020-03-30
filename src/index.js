@@ -1,14 +1,20 @@
 /*eslint-env browser */
-// eslint-disable-next-line no-unused-vars
-/* globals log, logError, completion */
+/* globals completion */
 
 const pdfjs = require('pdfjs-dist/build/pdf.js');
 const PdfjsWorker = require('pdfjs-dist/build/pdf.worker.js');
+export const pdfjsLib = pdfjs;
 
 if (typeof window !== 'undefined' && 'Worker' in window) {
   pdfjs.GlobalWorkerOptions.workerPort = new PdfjsWorker();
 }
 
+/**
+ * returns the text of a page
+ * @param pdf:pdfjs.Document
+ * @param pageNo:number
+ * @returns {Promise<string>}
+ */
 async function getPageText(pdf, pageNo) {
   // noinspection JSUnresolvedFunction
   const page = await pdf.getPage(pageNo);
@@ -16,49 +22,63 @@ async function getPageText(pdf, pageNo) {
   return tokenizedText.items.map(token => token.str).join("");
 }
 
-async function extractPDFText(source, textTestFn, isOfp=false){
-  const ofpPages = [];
-  let processedPages = 0;
+/**
+ * Returns the text of all pdf pages matching the test function
+ *
+ * If you know that only a set of contiguous pages will match,
+ * let say for example pages 2-3-4 will match the testFn, there is no need
+ * to continue parsing until the EOF.
+ * If you set the breakAfter parameter to true:
+ * The function will then parse pages 1 to 4, fails to match on page 5
+ * and will returns the text content of page 2-3-4
+ *
+ * With breakAfter set to false, the function would have parsed all pages
+ * and would have produced on the same file the same results (the text content
+ * of page 2-3-4) but using more processing time.
+ *
+ * The matchFn function receives (pageText, pageNo, pdfjs.Document) and should
+ * returns true or false
+ *
+ * @param source: pdfjs.Document - the pdf document
+ * @param matchFn:[function] - the match function
+ * @param breakAfter:[boolean=false] - if true, stop the search after failure
+ * @returns {Promise<string>}
+ */
+async function extractPDFText(source, matchFn, breakAfter=false){
+  const pdfPages = [];
+  let matchingPagesCount = 0;
   const pdf = await pdfjs.getDocument(source).promise;
   const maxPages = pdf.numPages;
   for (let pageNo = 1; pageNo <= maxPages; pageNo += 1) {
-    //log(pageNo);
     const pageText = await getPageText(pdf, pageNo);
-    if (textTestFn) {
-      if (textTestFn(pageText)) {
-        ofpPages.push(pageText);
-        processedPages += 1;
-      } else if (isOfp && processedPages !== 0) {
+    if (matchFn) {
+      if (matchFn(pageText, pageNo, pdf)) {
+        pdfPages.push(pageText);
+        matchingPagesCount += 1;
+      } else if (breakAfter && matchingPagesCount !== 0) {
         break;
       }
     } else {
-      ofpPages.push(pageText);
+      pdfPages.push(pageText);
     }
   }
-  return ofpPages.join("");
+  return pdfPages.join("");
 }
 
-// noinspection JSUnusedGlobalSymbols
-export function getOFPText(base64string) {
+/**
+ * a wrapper to the extractPDFText with completion and error handling
+ * @param base64string:string - the pdf in base64 string format
+ * @param matchFn:[function] - optional text matching function
+ * @param breakAfter:[boolean=false]
+ */
+export function getPDFText(base64string, matchFn, breakAfter=false ) {
   extractPDFText(
     {data: atob(base64string)},
-    (pageText) => pageText.includes("(Long copy #1)"),
-    true).then((text) => {
+    matchFn,
+    breakAfter).then((text) => {
       completion(text)
   }, (error) => {
-      logError(error);
-      completion("");
-  });
-}
-
-// noinspection JSUnusedGlobalSymbols
-export function getPDFText(base64string) {
-  extractPDFText(
-    {data: atob(base64string)}).then((text) => {
-      completion(text)
-  }, (error) => {
-      logError(error);
-      completion("");
+      throw Error(error);
   });
 }
 
