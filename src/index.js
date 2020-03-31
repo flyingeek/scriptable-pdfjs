@@ -13,13 +13,14 @@ if (typeof window !== 'undefined' && 'Worker' in window) {
  * returns the text of a page
  * @param pdf:pdfjs.Document
  * @param pageNo:number
+ * @param separator:string=""
  * @returns {Promise<string>}
  */
-async function getPageText(pdf, pageNo) {
+async function getPageText(pdf, pageNo, separator="") {
   // noinspection JSUnresolvedFunction
   const page = await pdf.getPage(pageNo);
   const tokenizedText = await page.getTextContent();
-  return tokenizedText.items.map(token => token.str).join("");
+  return tokenizedText.items.map(token => token.str).join(separator);
 }
 
 /**
@@ -42,15 +43,17 @@ async function getPageText(pdf, pageNo) {
  * @param source: pdfjs.Document - the pdf document
  * @param matchFn:[function] - the match function
  * @param breakAfter:[boolean=false] - if true, stop the search after failure
+ * @param pageSeparator:string="" - the page separator
+ * @param tokenSeparator:string="" - the token separator
  * @returns {Promise<string>}
  */
-async function extractPDFText(source, matchFn, breakAfter=false){
+export async function extractText(source, matchFn, breakAfter=false, pageSeparator="", tokenSeparator=""){
   const pdfPages = [];
   let matchingPagesCount = 0;
   const pdf = await pdfjs.getDocument(source).promise;
   const maxPages = pdf.numPages;
   for (let pageNo = 1; pageNo <= maxPages; pageNo += 1) {
-    const pageText = await getPageText(pdf, pageNo);
+    const pageText = await getPageText(pdf, pageNo, tokenSeparator);
     if (matchFn) {
       if (matchFn(pageText, pageNo, pdf)) {
         pdfPages.push(pageText);
@@ -62,23 +65,34 @@ async function extractPDFText(source, matchFn, breakAfter=false){
       pdfPages.push(pageText);
     }
   }
-  return pdfPages.join("");
+  return pdfPages.join(pageSeparator);
 }
 
 /**
- * a wrapper to the extractPDFText with completion and error handling
- * @param base64string:string - the pdf in base64 string format
+ * a convenience wrapper to extractText using Scriptable completion fn
+ * @param source:[string|object] - pdf source accepted by pdfjs.getDocument
  * @param matchFn:[function] - optional text matching function
  * @param breakAfter:[boolean=false]
+ * @param pageSeparator:string="" - the page separator
+ * @param tokenSeparator:string="" - the token separator
  */
-export function getPDFText(base64string, matchFn, breakAfter=false ) {
-  extractPDFText(
-    {data: atob(base64string)},
-    matchFn,
-    breakAfter).then((text) => {
+export function getText(source, matchFn, breakAfter=false, pageSeparator="", tokenSeparator = "" ) {
+  extractText(source, matchFn, breakAfter, pageSeparator, tokenSeparator)
+    .then((text) => {
       completion(text)
   }, (error) => {
       throw Error(error);
   });
+}
+/**
+ * a wrapper for getText when you need to use base64 string as source
+ * @param base64string:string - the pdf in base64 string format
+ * @param matchFn:[function] - optional text matching function
+ * @param breakAfter:[boolean=false]
+ * @param pageSeparator:string="" - the page separator
+ * @param tokenSeparator:string="" - the token separator
+ */
+export function getTextFromBase64String(base64string, matchFn, breakAfter=false,  pageSeparator="", tokenSeparator = "") {
+  getText({data: atob(base64string)}, matchFn, breakAfter, pageSeparator, tokenSeparator);
 }
 

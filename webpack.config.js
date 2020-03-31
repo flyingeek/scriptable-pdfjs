@@ -30,7 +30,7 @@ const config = {
       inlineSource: '.(js|css)$',
       filename: `${infos.name}.html`,
     }),
-    new HtmlWebpackInlineSourcePlugin(HtmlWebpackPlugin),
+    new HtmlWebpackInlineSourcePlugin(HtmlWebpackPlugin)
   ]
 };
 

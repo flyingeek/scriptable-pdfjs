@@ -24,33 +24,9 @@ npm run build
 
 ## Running from Scriptable
 
-Copy `dist/scriptable-pdfjs.html` into Scriptable Document Folder.
+Copy the file `dist/scriptable-pdfjs.html` into Scriptable Document Folder.
 
-```javascript
-const fm = FileManager.iCloud();
-const wv = new WebView();
-const htmlFileUrl = fm.joinPath(fm.documentsDirectory(), "scriptable-pdfjs.html");
-await wv.loadFile(htmlFileUrl);
-
-/*
- In the WebView your javascript will have access to the pdfjs global var.
- pdfjs.pdfjsLib is the pdfjs module
- pdfjs.getPDFText is a convenience wrapper
- You have to pass the pdf file as a base64 string
-*/
-
-let javascript = 'pdfjs.getPDFText(';
-javascript += '"' + fm.read(pdfFilePath).toBase64String() + '"';
-javascript += ');'
-
-let result = "";
-try {
-  result = await wv.evaluateJavaScript(javascript, true);
-} catch (e) {
-  //...
-}
-//...
-```
+and use [scriptable-pdfjs-demo](https://gist.github.com/flyingeek/70f5e09887f17dbfcd11a4b620a68b28) to play.
 
 ## Running from Shortcuts app
 
@@ -71,27 +47,30 @@ try {
 }
 // use the same bookmark name as in the action above
 const filePath = fm.bookmarkedPath("ShortcutPDF");
-await fm. downloadFileFromiCloud(filePath); // works also for local file
 
 // We execute pdfjs in a WebView
 const wv = new WebView();
 const htmlFileUrl = fm.joinPath(fm.documentsDirectory(), "scriptable-pdfjs.html");
+await fm.downloadFileFromiCloud(htmlFileUrl);
 await wv.loadFile(htmlFileUrl);
 
-let javascript = 'pdfjs.getPDFText(';
+let javascript = 'pdfjs.getText(';
 javascript += '"' + fm.read(filePath).toBase64String() + '"';
-javascript += ', (pageText) => pageText.includes("(Long copy #1)")';
-javascript += ', true';
+//javascript += ', (pageText) => pageText.includes("(Long copy #1)")';
+//javascript += ', true';
 javascript += ');'
 
-
+let result = "";
 try {
   result = await wv.evaluateJavaScript(javascript, true);
 } catch (e) {
   result = "";
 }
-Script.setShortcutOutput(result);
+return result;
 ```
 For some reasons... (bug in shortcuts or scriptable ?) You cannot convert
 the PDF to Base64 and pass it as an argument to the script. You have to use
 the bookmark trick and make the base64 conversion in Scriptable.
+
+For file larger than 2.5 Mo, you can not run this script inline and you 
+have to modify the script to get results by using the clipboard.
