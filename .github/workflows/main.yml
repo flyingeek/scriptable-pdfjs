@@ -32,7 +32,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Build application
-        run: npm build
+        run: npm run build
       - name: upload assets
         uses: actions-github/upload-to-release@master
         with:
