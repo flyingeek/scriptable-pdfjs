@@ -1,6 +1,7 @@
 require('webpack');
 const path = require('path');
 const infos = require("./package.json");
+const name = infos.name.replace(/^@flyingeek\//,"");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 
@@ -8,7 +9,7 @@ const config = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: `${infos.name}.js`,
+    filename: `${name}.js`,
     library: "pdfjs",
     libraryTarget: "var"
   },
@@ -28,7 +29,7 @@ const config = {
       template: path.join(__dirname, './src/index.html'),
       inject: "body",
       inlineSource: '.(js|css)$',
-      filename: `${infos.name}.html`,
+      filename: `${name}.html`,
     }),
     new HtmlWebpackInlineSourcePlugin(HtmlWebpackPlugin)
   ]
