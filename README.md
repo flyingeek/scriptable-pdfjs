@@ -26,7 +26,9 @@ npm run build
 
 Copy the file `dist/scriptable-pdfjs.html` into Scriptable Document Folder.
 
-and use [scriptable-pdfjs-demo](https://gist.github.com/flyingeek/70f5e09887f17dbfcd11a4b620a68b28) to play.
+(or you may simply download the latest version from [here](https://github.com/flyingeek/scriptable-pdfjs/releases/latest/download/scriptable-pdfjs.html))
+
+and use the gist [scriptable-pdfjs-demo](https://gist.github.com/flyingeek/70f5e09887f17dbfcd11a4b620a68b28) to play.
 
 ## Running from Shortcuts app
 
