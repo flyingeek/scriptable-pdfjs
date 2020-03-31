@@ -1,8 +1,11 @@
 {
   "name": "scriptable-pdfjs",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "converts a pdf to text in ios app scriptable app.",
-  "main": "index.js",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "main": "dist/scriptable-pdfjs.html",
   "scripts": {
     "preinstall": "npx npm-force-resolutions",
     "clean": "rm dist/**",
