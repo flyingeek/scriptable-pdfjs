@@ -31,8 +31,12 @@ jobs:
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      - uses: JasonEtco/upload-to-release@master
+      - name: Build application
+        run: npm build
+      - name: upload assets
+        uses: actions-github/upload-to-release@master
         with:
-          args: dist/scriptable-pdfjs.html text/html
+          file: './dist/scriptable-pdfjs.html'
+          type: 'text/html'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
