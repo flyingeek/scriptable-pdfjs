@@ -1,5 +1,5 @@
 {
-  "name": "scriptable-pdfjs",
+  "name": "@flyingeek/scriptable-pdfjs",
   "version": "1.0.0-beta.2",
   "description": "converts a pdf to text in ios app scriptable app.",
   "publishConfig": {
