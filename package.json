@@ -1,6 +1,6 @@
 {
   "name": "@flyingeek/scriptable-pdfjs",
-  "version": "1.0.0-beta.6",
+  "version": "1.0.0-beta.7",
   "description": "converts a pdf to text in ios app scriptable app.",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
