@@ -7,7 +7,6 @@
   },
   "main": "dist/scriptable-pdfjs.html",
   "scripts": {
-    "preinstall": "npx npm-force-resolutions",
     "clean": "rm dist/**",
     "build": "webpack --mode production && rm dist/*.js",
     "lint": "eslint src/**"
@@ -35,22 +34,19 @@
       "eslint:recommended"
     ]
   },
-  "resolutions": {
-    "minimist": "^1.2.5"
-  },
   "devDependencies": {
-    "css-loader": "^3.4.2",
+    "css-loader": "^3.6.0",
     "eslint": "^6.8.0",
     "file-loader": "^4.3.0",
     "html-webpack-inline-source-plugin": "^1.0.0-beta.2",
-    "html-webpack-plugin": "^4.0.3",
+    "html-webpack-plugin": "^4.5.0",
     "style-loader": "^0.23.1",
-    "url-loader": "^4.0.0",
-    "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11",
+    "url-loader": "^4.1.1",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
     "worker-loader": "^2.0.0"
   },
   "dependencies": {
-    "pdfjs-dist": "^2.3.200"
+    "pdfjs-dist": "^2.5.207"
   }
 }
